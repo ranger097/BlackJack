@@ -1,33 +1,28 @@
 import random
-#imported random so the cards can be shuffled
 import time
-#this makes it feel more like a game cuz the cards need time to shuffle
 
-def blackjack():
-    #made a function called blackjack and then made card variables so we can play
+def blackJack():
     
     suits = ["Clubs", "Hearts", "Spades", "Diamonds"]
     cards = ["2", "3", "4", "5", "6", "7", "8","9","Jack", "Queen", "King","Ace"]
-    #these are all are cards and suits. now we gotta get all possible outcomes.
-    
     deck = [(suit,card) for suit in suits for card in cards]
-    #now we have a full deck.
-    
-    #we need to shuffle and give out some cards so this is the shuffle.
-    giveOutCards = 2
+    giveOutCards = 5
     givenCards = random.sample(deck,giveOutCards)
     
-    #this is are middle man so we can pass this to the player by printing it.
+    
     cardOne_cards , cardOne_suits = givenCards[0]
     cardTwo_cards , cardTwo_suits = givenCards[1]
-   
+    cardThree_cards , cardThree_suits = givenCards[2]
+    cardFour_cards , cardFour_suits = givenCards[3]
+    cardFive_cards , cardFive_suits = givenCards[4]
     
-    #this concenates them together , for example "ace of spades"
+    
     card1 = f"{cardOne_suits} of {cardOne_cards}"
     card2 = f"{cardTwo_suits} of {cardTwo_cards}"
-   
+    card3 = f"{cardThree_suits} of {cardThree_cards}"
+    card4 = f"{cardFour_suits} of {cardFour_cards}"
+    card5 = f"{cardFive_suits} of {cardFive_cards}"
     
-    #welcome and rules
     print("  \n\n")
     print("Welcome to the BlackJack Table!")
     print("___________________________________________\n\n\n")
@@ -36,15 +31,12 @@ def blackjack():
     print("(__First round is on the house__)\n")
     print("(__First to bust pays for drinks 😁__)\n\n")
     
-    #ask player if they want to play
     player = input("would you like to play a round of 21:\n________________________________________\n\n\n\n\n\n")
     if player.lower() == "yes": 
         print("  \n\n")        
         print("Take a seat while i shuffle some cards\n\n")
         time.sleep(3)
         print(f"here is your cards:\n\n\nThe {card1} and The {card2}\n\n")
-        #the conditionals here are just fun banter, i plan on adding much more and making it random o it doesnt get old. 
-        #also i wanna give the player some money for listening to the banter.
         if cardOne_suits == "Hearts" and cardTwo_suits == "Hearts":
             print("Hearts huh?\n\n")
             print("Dont fall in love kid\nbiggest mistake i ever made")
@@ -62,19 +54,50 @@ def blackjack():
             print("spades damn?\n\n")
             print("you wouldnt happen to\nknow any spades do you?\nsome guy named David\ncame in here acting like a total idiot\nat first it was funny\nbut he ran off with the coins\n\nand never tipped the bartenders either")
         elif cardOne_cards == "Ace" or cardTwo_cards == "Ace":
-           x = input("Ace? cool....\n1 or 11?\n")
-           if x == "11":
-               "Ace" == "11"
-           else:
-               "Ace" == "1"
+            x = input("Ace? cool....\n1 or 11?\n")
+            if x == "11":
+                "Ace" == "11"
         else:
+            "Ace" == "1"
             print("good luck kid\n\n ")      
-               
-               
-    #if player doesnt want to play.
     else:
         print("GTFO of here dumb@$$ leave room for the real ballers")
-blackjack()
+        
+    
+    options = ["> 1. thanks\n", "> 2. youll need the luck\n", "> 3. just play the fucking game old man\n"]
+    for i in range(3):
+        print(options[i])
+        i = i + 1
+    x = input("choose:\n\n")
+    if x == "1":
+        print("you got it\n\n\n")
+    elif x == "2":
+        print("you got guts kid\n\n\n")
+    else:
+        print("lifes a game kid, dont rush it\n\n\n")
+        
+        
+    print("Hit?")
+    choose = ["> 1. Sure", "> 2. Nah"]
+    for i in range(2):
+        print(choose[i])
+        i = i + 1
+    
+    x = input("choose: \n\n")
+    if x == "1":
+        print("Here: \n")
+        print(f"{card3}\n")
+        print(f"alright your at {card1}, {card2}, and {card3}\n\n")
+    else:
+        print("smart\n\n")
+        print(f"so your at {card1} and {card2}")
+       
+       
+       
+       
+       
+       
+blackJack()
     
     
 
