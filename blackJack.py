@@ -2,7 +2,9 @@
 import random
 import time
 import os
-
+import blessed
+import readchar
+import rich
 
 def blackJack():
     
