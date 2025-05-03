@@ -19,29 +19,79 @@ import rich
 from rich.live import Live
 from rich.table import Table
 
-
-
-
-
-
 #makes game screen
-
 stdscr = curses.initscr()
-#players legend status
+
+#disables mouse cursor
+curses.curs_set(0)
+curses.mousemask(0)
+
+#functions to display text in screen corners
+def topRight(stdscr, text):
+    height, width = stdscr.getmaxyx()
+    #cutting the text at the end so it doesnt wrap the terminal
+    if len(text) > width:
+        #this specificallly cuts it to 1 line
+        text = text[:width] 
+    #this minuses the width by the length of the text so we get the full wdth minus the text length
+    x = width - len(text) 
+
+def bottomRight(stdscr, text):
+    height, width = stdscr.getmaxyx()
+    if len(text) > width:
+        #this specificallly cuts it to 1 line
+        text = text[:width] 
+    #this minuses the width by the length of the text so we get the full wdth minus the text length
+    x = width - len(text)
+    y = height - 1
+    
+def bottomLeft(stdscr, text):
+    height, width = stdscr.getmaxyx()
+    if len(text) > width:
+        text = text[:width]
+    y = height - 1
+    
+def topLeft(stdscr,text):
+    height, width = stdscr.getmaxyx()
+    if len(text) > width:
+        text = text[:width]
+    y = height - height + 1
+    x = width - width + 1
+    
+#this function will center arrays of text.
+#very useful when writing tons of scripts that need to be called.
+def centerText(stdscr,strings):
+    height , width = stdscr.getmaxyx()
+    num_strings = len(strings)
+    
+    starting_y = (height - num_strings) // 2
+    
+    #loop to print our text out
+    for i, text in enumerate(strings):
+        x =  (width - len(text)) // 2
+        y = starting_y + 1
+        if len(text) > width:
+            text = text[:width]
+        
+        stdscr.addstr( y , x , text )
+             
+    stdscr.refresh()
+
+
 
 
 
 #main game funtion
-
-
-    
-
 def blackJack(stdscr):
     legendStatus = 0
+    legend = 0
     
     while legendStatus < 100:
+        
         stdscr.clear()
-        y, x = stdscr.getmaxyx()
+        yo, xo = stdscr.getmaxyx()
+        y = round(yo/2)
+        x = round(xo/2)
         
         #this section gives us our card deck with included suits and numbers
         suits = ["Clubs", "Hearts", "Spades", "Diamonds"]
@@ -96,68 +146,55 @@ def blackJack(stdscr):
         card10 = f"{cardTen_suits} of {cardTen_cards}"
     
         #this section is the welcome screen, explaining the rules
-        stdscr.addstr(2,2,"Welcome to the BlackJack Table!")
-        stdscr.addstr(4,2,"The rules are simple:")
-        stdscr.addstr(6,2,"(__First to 21 wins__)")
-        stdscr.addstr(8,2,"(__First round is on the house__)")
-        stdscr.addstr(10,2,"(__First to bust pays for drinks 😁__)")
-
-        #this section ask the player if they would like to play
-        decide = ["> 1. Yes\n\n", "> 2. No\n\n"]
-        stdscr.addstr(12,2,"would you like to play a round of 21:\n________________________________________\n\n")
-    
-        #this loop is for options, like yes or no
-        for i in range(2):
-            stdscr.addstr(decide[i])
-            i = i + 1
+        stdscr.addstr(y - 4, x ,"Welcome to the BlackJack Table!")
+        stdscr.addstr(y - 2, x ,"The rules are simple:")
+        stdscr.addstr(y + 0, x ,"(__First to 21 wins__)")
+        stdscr.addstr(y + 2, x ,"(__First round is on the house__)")
+        stdscr.addstr(y + 4, x ,"(__First to bust pays for drinks 😁__)")
+        stdscr.addstr(y + 6 , x ,"Press 1 to continue")
         
         #this gets player input
         player_input = stdscr.getch()
         if player_input == ord('1'): 
+            stdscr.clear()
             stdscr.refresh()       
-            stdscr.addstr(2,2,"Take a seat while i shuffle some cards\n\n")
-            time.sleep(1)
-            stdscr.refresh()
-            stdscr.addstr(2,2,f"here is your cards:\n\n\nThe {card1} and The {card2}\n\n")
-            
-        
-            #this is for dealer banter if the suits are the same
-        
+            stdscr.addstr(y - 2 , x ,"Take a seat while i shuffle some cards\n\n")
+            stdscr.addstr(y + 0 , x,f"here is your cards:\n\n\nThe {card1} and The {card2}\n\n")
+            stdscr.addstr(0 , 0 ,   f"dont bust {totalValue}")
+
             #hearts
             if cardOne_cards == "Hearts" and cardTwo_cards == "Hearts":
+                stdscr.clear()
                 stdscr.refresh()
-                stdscr.addstr(10,2,"Hearts huh?")
-                stdscr.addstr(12,2,"Dont fall in love kid\n\nbiggest mistake i ever made")
+                stdscr.addstr(y - 2 , x ,"Hearts huh?")
+                stdscr.addstr(y + 0 , x ,"Dont fall in love kid\n\nbiggest mistake i ever made")
             
             #clubs
             elif cardOne_cards == "Clubs" and cardTwo_cards == "Clubs":
+                stdscr.clear()
                 stdscr.refresh()
-                stdscr.addstr(10,2,"See those clubs?")
-                stdscr.addstr(12,2,"They're like the nights here. No?")
-                stdscr.addstr(14,2,"Dark, a little rough around the edges,")
-                stdscr.addstr(16,2,"and you never know what's gonna hit ya.")
-                stdscr.addstr(18,2,"Just try not to get hit too hard,")
+                stdscr.addstr(y - 4 , x ,"See those clubs?")
+                stdscr.addstr(y - 2 , x ,"They're like the nights here. No?")
+                stdscr.addstr(y + 0 , x ,"Dark, a little rough around the edges,")
+                stdscr.addstr(y + 2 , x ,"and you never know what's gonna hit ya.")
+                stdscr.addstr(y + 4 , x ,"Just try not to get hit too hard,")
                 
             #diamonds
             elif cardOne_cards == "Diamonds" and cardTwo_cards == "Diamonds":
+                stdscr.clear()
                 stdscr.refresh()
-                stdscr.addstr(10,2,"See those diamond?")
-                stdscr.addstr(12,2,"Pretty.\n\n\n\n\n")
-                stdscr.addstr(14,2,"Probably Worth something.")
-                stdscr.addstr(16,2,"But you gotta know when to hold 'em, kid.")
-                stdscr.addstr(18,2,"And more importantly,\nwhen to walk away from 'em.")
-                stdscr.addstr(20,2,"Learned that the hard way...")
-                stdscr.addstr(22,2,"a few times...")
-                time.sleep(3)
-                stdscr.refresh()
-                time.sleep(0.5)
-                stdscr.addstr(10,2,"give me a second kid\n")
-                time.sleep(0.5)
-                stdscr.refresh()
-                stdscr.addstr(10,2,"alright lets play\n")
+                stdscr.addstr(y - 6 , x ,"See those diamond?")
+                stdscr.addstr(y - 4 , x ,"Pretty.\n\n\n\n\n")
+                stdscr.addstr(y - 2 , x ,"Probably Worth something.")
+                stdscr.addstr(y + 0 , x ,"But you gotta know when to hold 'em, kid.")
+                stdscr.addstr(y + 2 , x ,"And more importantly,\nwhen to walk away from 'em.")
+                stdscr.addstr(y + 4 , x ,"Learned that the hard way...")
+                stdscr.addstr(y + 6 , x ,"a few times...")
+                
             
             #spades
             elif cardOne_cards == "Spades" and cardTwo_cards == "Spades":
+                stdscr.clear()
                 stdscr.refresh()
                 stdscr.addstr("spades damn?")
                 time.sleep(1)
@@ -173,22 +210,9 @@ def blackJack(stdscr):
                 stdscr.addstr("and never tipped the bartenders either")
                 stdscr.refresh()
                 
-            #this is to get player input if they would like the ace to be a 1 or 11    
-            elif cardOne_suits == Ace or cardTwo_suits == Ace:
-                player_input1 = stdscr.getch()
-                stdscr.addstr("1. 1 or 2. 11")
-                if player_input1 == ord('1'):
-                    "Ace" == "1"
-            elif cardOne_suits == Ace and cardTwo_suits == Ace:
-                player_input2 = stdscr.getch()
-                stdscr.addstr("Ace? cool....\n1 or 11?\n")
-                if player_input2 == ord('1'):
-                    "Ace" == "1"
-            else:
-                "Ace" == "11"
-                stdscr.addstr("good luck kid\n\n ")      
-        else:
-            stdscr.addstr("GTFO of here dumb@$$ leave room for the real ballers")
+            
+                 
+       
         
         #starting player decisions and dealer banter
         options = ["> 1. thanks\n", 
@@ -205,8 +229,12 @@ def blackJack(stdscr):
         stdscr.addstr("choose:\n\n")
         if player_input3 == ord('1'):
             stdscr.addstr("you got it\n\n\n")
+            stdscr.refresh()
+            stdscr.clear()
         elif player_input3 == ord('2'):
             stdscr.addstr("you got guts kid\n\n\n")
+            stdscr.refresh()
+            stdscr.clear()
         else:
             stdscr.addstr("lifes a game kid, dont rush it\n\n\n")
         
@@ -231,6 +259,8 @@ def blackJack(stdscr):
         player_input4 = stdscr.getch()
         stdscr.addstr("choose:")
         if player_input4 == ord('1'):
+            stdscr.refresh()
+            stdscr.clear()
             stdscr.addstr("Here:")
             stdscr.addstr(f"{card3}")
             stdscr.addstr(f"alright your at {card1}, {card2}, and {card3}")
@@ -244,10 +274,14 @@ def blackJack(stdscr):
                 i = i + 1
             
             if player_input4 == ord('1'):
+                stdscr.refresh()
+                stdscr.clear()
                 blackJack()
             else:
                 stdscr.addstr("see you again kid")
         else:
+            stdscr.refresh()
+            stdscr.clear()
             stdscr.addstr("smart\n\n")
             stdscr.addstr(f"so your at {card1} and {card2}\n\n")
             stdscr.addstr(f"while im at {card3} and {card4}")
