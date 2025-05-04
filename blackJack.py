@@ -27,7 +27,7 @@ curses.curs_set(0)
 curses.mousemask(0)
 
 #functions to display text in screen corners
-def topRight(stdscr, text):
+def topRight(stdscr, text , color_attr = 1 ):
     height, width = stdscr.getmaxyx()
     #cutting the text at the end so it doesnt wrap the terminal
     if len(text) > width:
@@ -35,8 +35,13 @@ def topRight(stdscr, text):
         text = text[:width] 
     #this minuses the width by the length of the text so we get the full wdth minus the text length
     x = width - len(text) 
-
-def bottomRight(stdscr, text):
+    stdscr.attron( color_attr )
+    stdscr.addstr( 0 , x , text )
+    stdscr.attroff( color_attr )
+    stdscr.refresh()
+    
+#displays text at the bottom right
+def bottomRight(stdscr, text , color_attr = 0 ):
     height, width = stdscr.getmaxyx()
     if len(text) > width:
         #this specificallly cuts it to 1 line
@@ -44,23 +49,31 @@ def bottomRight(stdscr, text):
     #this minuses the width by the length of the text so we get the full wdth minus the text length
     x = width - len(text)
     y = height - 1
+    stdscr.addstr(y , x , text)
+    stdscr.refresh()
     
+#displays text at the bottom left of the screen.
 def bottomLeft(stdscr, text):
     height, width = stdscr.getmaxyx()
     if len(text) > width:
         text = text[:width]
     y = height - 1
+    stdscr.addstr(y , 0 , text)
+    stdscr.refresh()
     
+#displays text at the top left of the screen
 def topLeft(stdscr,text):
     height, width = stdscr.getmaxyx()
     if len(text) > width:
         text = text[:width]
-    y = height - height + 1
-    x = width - width + 1
+    y = height - height # + 1
+    x = width - width # + 1
+    stdscr.addstr(y , x , text)
+    stdscr.refresh()
     
 #this function will center arrays of text.
 #very useful when writing tons of scripts that need to be called.
-def centerText(stdscr,strings):
+def centerText(stdscr,strings , color1):
     height , width = stdscr.getmaxyx()
     num_strings = len(strings)
     
@@ -69,236 +82,248 @@ def centerText(stdscr,strings):
     #loop to print our text out
     for i, text in enumerate(strings):
         x =  (width - len(text)) // 2
-        y = starting_y + 1
+        y = starting_y + i
         if len(text) > width:
             text = text[:width]
         
+        #only works if using an array
+        stdscr.attron(color1)
         stdscr.addstr( y , x , text )
-             
+        stdscr.attroff(color1)
+        stdscr.refresh()
+    stdscr.refresh()
+    
+    
+#this section gives us our card deck with included suits and numbers
+suits = ["Clubs", "Hearts", "Spades", "Diamonds"]
+Jack = 10
+Queen = 10
+King = 10
+Ace = 1
+        
+cards = [ 2 , 3 , 4 , 5 , 6 , 7 , 8 , 9 , Jack, Queen, King , Ace ]
+    
+#this section instead of shuffling the deck, assigns a random 5 cards every game
+deck = [(suit,card) for suit in suits for card in cards]
+giveOutCards = 10
+givenCards = random.sample(deck,giveOutCards)
+    
+#this section takes a random suit and ties it to a random card, there are 10 cards
+cardOne_cards , cardOne_suits = givenCards[0]
+cardTwo_cards , cardTwo_suits = givenCards[1]
+cardThree_cards , cardThree_suits = givenCards[2]
+cardFour_cards , cardFour_suits = givenCards[3]
+cardFive_cards , cardFive_suits = givenCards[4]
+cardSix_cards , cardSix_suits = givenCards[5]
+cardSeven_cards , cardSeven_suits = givenCards[6]
+cardEight_cards , cardEight_suits = givenCards[7]
+cardNine_cards , cardNine_suits = givenCards[8]
+cardTen_cards , cardTen_suits = givenCards[9]
+    
+#this is the values section where we will add the cards.
+valueOne = cardOne_suits
+valueTwo = cardTwo_suits
+totalValue = valueOne + valueTwo
+firstHitValue = totalValue + cardThree_suits
+secondHitValue = firstHitValue + cardFour_suits
+thirdHitValue = secondHitValue + cardFive_suits
+forthHitValue = thirdHitValue + cardSix_suits
+fifthHitValue = forthHitValue + cardSeven_suits
+sixthHitValue = fifthHitValue + cardEight_suits
+seventhHitValue = sixthHitValue + cardNine_suits
+eighthHitValue = seventhHitValue + cardTen_suits
+   
+#this section formats are code ex: king of spades
+card1 = f"{cardOne_suits} of {cardOne_cards}"
+card2 = f"{cardTwo_suits} of {cardTwo_cards}"
+card3 = f"{cardThree_suits} of {cardThree_cards}"
+card4 = f"{cardFour_suits} of {cardFour_cards}"
+card5 = f"{cardFive_suits} of {cardFive_cards}"
+card6 = f"{cardSix_suits} of {cardSix_cards}"
+card7 = f"{cardSeven_suits} of {cardSeven_cards}"
+card8 = f"{cardEight_suits} of {cardEight_cards}"
+card9 = f"{cardNine_suits} of {cardNine_cards}"
+card10 = f"{cardTen_suits} of {cardTen_cards}"
+
+def risk(stdscr, total):
+    if 2 <= total <= 10:
+        risk_level = "low"
+    elif 11 <= total <= 16:
+        risk_level = "medium"
+    elif total >= 17:
+        risk_level = "high"
+    else:
+        risk_level = "none"
+    riskString = (f"Risk: {risk_level}")
+    topLeft(stdscr, riskString)
     stdscr.refresh()
 
 
-
-
-
 #main game funtion
-def blackJack(stdscr):
+def blackJack(stdscr , color1 , color2 , color3):
     legendStatus = 0
     legend = 0
+    player_choice = None
     
     while legendStatus < 100:
         
-        stdscr.clear()
-        yo, xo = stdscr.getmaxyx()
-        y = round(yo/2)
-        x = round(xo/2)
-        
-        #this section gives us our card deck with included suits and numbers
-        suits = ["Clubs", "Hearts", "Spades", "Diamonds"]
-        Jack = 10
-        Queen = 10
-        King = 10
-        Ace = 1
-        
-        cards = [ 2 , 3 , 4 , 5 , 6 , 7 , 8 , 9 , Jack, Queen, King , Ace ]
-    
-        #this section instead of shuffling the deck, assigns a random 5 cards every game
-        deck = [(suit,card) for suit in suits for card in cards]
-        giveOutCards = 10
-        givenCards = random.sample(deck,giveOutCards)
-    
-        #this section takes a random suit and ties it to a random card, there are 10 cards
-        cardOne_cards , cardOne_suits = givenCards[0]
-        cardTwo_cards , cardTwo_suits = givenCards[1]
-        cardThree_cards , cardThree_suits = givenCards[2]
-        cardFour_cards , cardFour_suits = givenCards[3]
-        cardFive_cards , cardFive_suits = givenCards[4]
-        cardSix_cards , cardSix_suits = givenCards[5]
-        cardSeven_cards , cardSeven_suits = givenCards[6]
-        cardEight_cards , cardEight_suits = givenCards[7]
-        cardNine_cards , cardNine_suits = givenCards[8]
-        cardTen_cards , cardTen_suits = givenCards[9]
-    
-        #this is are values section where we will add the cards.
-        valueOne = cardOne_suits
-        valueTwo = cardTwo_suits
-        totalValue = valueOne + valueTwo
-        firstHitValue = totalValue + cardThree_suits
-        secondHitValue = firstHitValue + cardFour_suits
-        thirdHitValue = secondHitValue + cardFive_suits
-        forthHitValue = thirdHitValue + cardSix_suits
-        fifthHitValue = forthHitValue + cardSeven_suits
-        sixthHitValue = fifthHitValue + cardEight_suits
-        seventhHitValue = sixthHitValue + cardNine_suits
-        eighthHitValue = seventhHitValue + cardTen_suits
-   
-    
-        #this section formats are code ex: king of spades
-        card1 = f"{cardOne_suits} of {cardOne_cards}"
-        card2 = f"{cardTwo_suits} of {cardTwo_cards}"
-        card3 = f"{cardThree_suits} of {cardThree_cards}"
-        card4 = f"{cardFour_suits} of {cardFour_cards}"
-        card5 = f"{cardFive_suits} of {cardFive_cards}"
-        card6 = f"{cardSix_suits} of {cardSix_cards}"
-        card7 = f"{cardSeven_suits} of {cardSeven_cards}"
-        card8 = f"{cardEight_suits} of {cardEight_cards}"
-        card9 = f"{cardNine_suits} of {cardNine_cards}"
-        card10 = f"{cardTen_suits} of {cardTen_cards}"
-    
         #this section is the welcome screen, explaining the rules
-        stdscr.addstr(y - 4, x ,"Welcome to the BlackJack Table!")
-        stdscr.addstr(y - 2, x ,"The rules are simple:")
-        stdscr.addstr(y + 0, x ,"(__First to 21 wins__)")
-        stdscr.addstr(y + 2, x ,"(__First round is on the house__)")
-        stdscr.addstr(y + 4, x ,"(__First to bust pays for drinks 😁__)")
-        stdscr.addstr(y + 6 , x ,"Press 1 to continue")
+        stdscr.clear()
+        stdscr.refresh()
+        strings = ["Welcome to the BlackJack Table!" , 
+                   "The rules are simple:" , 
+                   "(__First to 21 wins__)" , 
+                   "(__First round is on the house__)" , 
+                   "(__First to bust pays for drinks 😁__)" , 
+                   "Press 1 to continue"
+                   ]
+        
+        centerText( stdscr , strings , color1 )
+        stdscr.refresh()
         
         #this gets player input
-        player_input = stdscr.getch()
-        if player_input == ord('1'): 
+        player_choice = stdscr.getch()
+        if player_choice == ord('1'): 
             stdscr.clear()
-            stdscr.refresh()       
-            stdscr.addstr(y - 2 , x ,"Take a seat while i shuffle some cards\n\n")
-            stdscr.addstr(y + 0 , x,f"here is your cards:\n\n\nThe {card1} and The {card2}\n\n")
-            stdscr.addstr(0 , 0 ,   f"dont bust {totalValue}")
+            stdscr.refresh() 
+            strings = ["Take a seat while i shuffle some cards" ,
+                       "here is your cards:" ,
+                       f"The {card1} and The {card2}" ,
+                        "Press 1 to continue"
+                       ]
+            score = ( f"Total : {totalValue}" )
+            centerText(stdscr , strings , color1)
+            topRight( stdscr , score )
+            risk(stdscr , totalValue)
+            stdscr.refresh()
 
             #hearts
             if cardOne_cards == "Hearts" and cardTwo_cards == "Hearts":
                 stdscr.clear()
                 stdscr.refresh()
-                stdscr.addstr(y - 2 , x ,"Hearts huh?")
-                stdscr.addstr(y + 0 , x ,"Dont fall in love kid\n\nbiggest mistake i ever made")
+                text1 = [ "Hearts huh?" ,
+                         "Dont fall in love kid" ,
+                         "biggest mistake i ever made" 
+                        ]
+                centerText( stdscr , text1 , color1)
+                score = ( f"Dont Bust : {totalValue}" )
+                bottomLeft( stdscr , score )
+                risk( stdscr , totalValue )
+                stdscr.refresh()
+                
             
             #clubs
             elif cardOne_cards == "Clubs" and cardTwo_cards == "Clubs":
                 stdscr.clear()
                 stdscr.refresh()
-                stdscr.addstr(y - 4 , x ,"See those clubs?")
-                stdscr.addstr(y - 2 , x ,"They're like the nights here. No?")
-                stdscr.addstr(y + 0 , x ,"Dark, a little rough around the edges,")
-                stdscr.addstr(y + 2 , x ,"and you never know what's gonna hit ya.")
-                stdscr.addstr(y + 4 , x ,"Just try not to get hit too hard,")
+                text2 = [ "See those clubs?" ,
+                            "They're like the nights here. No?" ,
+                            "Dark? a little rough around the edges?" ,
+                            "and you never know what's gonna hit ya." ,
+                            "Just try not to get hit too hard." 
+                          ]
+                
+                score = ( f"Dont Bust : {totalValue}" )
+                centerText( stdscr , text2 , color1 ) 
+                bottomLeft(stdscr , score)
+                risk( stdscr , totalValue )
                 
             #diamonds
             elif cardOne_cards == "Diamonds" and cardTwo_cards == "Diamonds":
                 stdscr.clear()
                 stdscr.refresh()
-                stdscr.addstr(y - 6 , x ,"See those diamond?")
-                stdscr.addstr(y - 4 , x ,"Pretty.\n\n\n\n\n")
-                stdscr.addstr(y - 2 , x ,"Probably Worth something.")
-                stdscr.addstr(y + 0 , x ,"But you gotta know when to hold 'em, kid.")
-                stdscr.addstr(y + 2 , x ,"And more importantly,\nwhen to walk away from 'em.")
-                stdscr.addstr(y + 4 , x ,"Learned that the hard way...")
-                stdscr.addstr(y + 6 , x ,"a few times...")
-                
+                text3 = ["See those diamond?" ,
+                           "Pretty?" ,
+                           "Probably Worth something." ,
+                           "But you gotta know when to hold 'em, kid." ,
+                           "And more importantly, when to walk away from 'em." ,
+                           "Learned that the hard way..." ,
+                           "a few times..."
+                           ]
+                score = ( f"Total : {totalValue}" )
+                centerText( stdscr , text3 , color1 )
+                bottomLeft(stdscr , score )
+                risk( stdscr , totalValue )
             
             #spades
             elif cardOne_cards == "Spades" and cardTwo_cards == "Spades":
                 stdscr.clear()
                 stdscr.refresh()
-                stdscr.addstr("spades damn?")
-                time.sleep(1)
+                text4 = ["spades damn?" ,
+                           "you wouldnt happen to know any spades do you?" ,
+                           "some guy named David?" ,
+                           "No?" ,
+                           "came in here acting like a total idiot" ,
+                           "at first it was funny" ,
+                           "but he ran off with the coins" ,
+                           "and never tipped the bartenders either" ,
+                           ]
+                centerText( stdscr , text4 , color1)
+                score = ( f"Total : {totalValue}" )
+                bottomLeft( stdscr , score )
+                risk( stdscr , totalValue )
                 stdscr.refresh()
-                stdscr.addstr("you wouldnt happen to know any spades do you?\n\n\n\n\n\n")
-                stdscr.addstr("some guy named David?")
-                stdscr.addstr("No?")
-                time.sleep(1)
-                stdscr.refresh()
-                stdscr.addstr("came in here acting like a total idiot")
-                stdscr.addstr("at first it was funny")
-                stdscr.addstr("but he ran off with the coins")
-                stdscr.addstr("and never tipped the bartenders either")
-                stdscr.refresh()
-                
-            
-                 
-       
         
-        #starting player decisions and dealer banter
-        options = ["> 1. thanks\n", 
-                   "> 2. youll need the luck\n", 
-                   "> 3. just play the fucking game old man\n"]
     
-         #this loops through the availble options and prints them to the console
-        for i in range(3):
-            stdscr.addstr(options[i])
-            i = i + 1
-    
-        #this gets player input for decisoions
-        player_input3 = stdscr.getch()
-        stdscr.addstr("choose:\n\n")
-        if player_input3 == ord('1'):
-            stdscr.addstr("you got it\n\n\n")
-            stdscr.refresh()
+        player_choice = stdscr.getch()
+        if player_choice == ord('1'):
             stdscr.clear()
-        elif player_input3 == ord('2'):
-            stdscr.addstr("you got guts kid\n\n\n")
             stdscr.refresh()
-            stdscr.clear()
-        else:
-            stdscr.addstr("lifes a game kid, dont rush it\n\n\n")
-        
-        #this will let the player know the total value
-        #then it ask them if they would like to take a hit
-        if totalValue <= 5:
-            stdscr.addstr(f"Hit? (low risk) at {totalValue} is lucky but 3 more cards will make you a legend")
-        if totalValue > 5 and totalValue < 14:
-            stdscr.addstr(f"Hit? (low-mid risk) at {totalValue} unless you are super lucky you wont go legendary")
-        if totalValue >= 14 and totalValue <= 18:
-            stdscr.addstr(f"Hit? (high risk) this is where legends are born")
-        if totalValue == 21:
-            stdscr.addstr(f"fuck kid, {totalValue}. lets see if this is the legends table ")
-    
-        #desisions
-        choose = ["> 1. Sure"
-                , "> 2. Nah"]
-        for i in range(2):
-            stdscr.addstr(choose[i])
-            i = i + 1
-            
-        player_input4 = stdscr.getch()
-        stdscr.addstr("choose:")
-        if player_input4 == ord('1'):
+            string1 = [f"would you like a hit?" , 
+                      f"So far you have The {card1}, The {card2}",
+                      "1. Yes " ,
+                      "2. No"]
+            centerText( stdscr, string1 , color1 )
+            risk( stdscr , totalValue )
             stdscr.refresh()
-            stdscr.clear()
-            stdscr.addstr("Here:")
-            stdscr.addstr(f"{card3}")
-            stdscr.addstr(f"alright your at {card1}, {card2}, and {card3}")
-        if totalValue > 21:
-            stdscr.addstr("you went bust kid\n\n")
-            stdscr.addstr("again\n\n")
-            options = ["> 1. Yes\n\n", 
-                       "> 2. No\n\n"]
-            for i in range(2):
-                stdscr.addstr(options[i])
-                i = i + 1
-            
-            if player_input4 == ord('1'):
-                stdscr.refresh()
+            player_choice = stdscr.getch()
+            if player_choice == ord('1'):
                 stdscr.clear()
-                blackJack()
-            else:
-                stdscr.addstr("see you again kid")
-        else:
-            stdscr.refresh()
-            stdscr.clear()
-            stdscr.addstr("smart\n\n")
-            stdscr.addstr(f"so your at {card1} and {card2}\n\n")
-            stdscr.addstr(f"while im at {card3} and {card4}")
-    
-    
-    legendStatus = legendStatus + 1
-    stdscr.refresh()
-    time.sleep(0.1)
-    
-       
-       
-       
+                stdscr.refresh()
+                string2 = [f"you have The {card1} The {card2} and The {card3}"]
+                centerText( stdscr , string2 , color1 )
+                risk( stdscr , firstHitValue )
+                stdscr.refresh()
 
-       
-blackJack(stdscr)
-wrapper(blackJack)
-curses.endwin()
+            elif player_choice == ord('2'):
+                stdscr.clear()
+                stdscr.refresh()
+                string3 = [f"you have The {card1} and The {card2}"]
+                centerText( stdscr , string3 , color1)
+                stdscr.refresh()
+        
+        
+        
+    
+    legendStatus += 1
+    stdscr.refresh()
+    
+def main(stdscr):
+    if curses.has_colors():
+        curses.start_color()
+        
+        #ill match the colors better later
+        curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLUE)
+        curses.init_pair(2, curses.COLOR_YELLOW, curses.COLOR_MAGENTA)
+        curses.init_pair(3, curses.COLOR_BLUE, curses.COLOR_BLACK)
+        
+        #color pairs
+        color1 = curses.color_pair(1)
+        color2 = curses.color_pair(2)
+        color3 = curses.color_pair(3)
+        
+        #changes background color
+        stdscr.bkgd(' ', color3 )
+        stdscr.clear()
+        stdscr.refresh()
+        
+        #adds are colors are parameters but literally makes them global so we can use them
+        blackJack( stdscr , color1 , color2 , color3 )
+    else:
+        blackJack( stdscr , 0 , 0 , 0)
+if __name__ == '__main__':
+    wrapper(main)
+
 
     
 
