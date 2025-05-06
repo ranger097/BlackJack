@@ -22,6 +22,8 @@ from rich.table import Table
 #makes game screen
 stdscr = curses.initscr()
 
+
+
 #disables mouse cursor
 curses.curs_set(0)
 curses.mousemask(0)
@@ -277,15 +279,41 @@ def blackJack(stdscr , color1 , color2 , color3):
             risk( stdscr , totalValue )
             stdscr.refresh()
             player_choice = stdscr.getch()
-            if player_choice == ord('1'):
+            if player_choice == ord('1') and totalValue < 21:
                 stdscr.clear()
                 stdscr.refresh()
-                string2 = [f"you have The {card1} The {card2} and The {card3}"]
+                string2 = [f"you have The {card1} The {card2} and The {card3}" ,
+                            "would you like another hit" ,
+                            "1 .Yes" ,
+                            "2 .No"]
                 centerText( stdscr , string2 , color1 )
                 risk( stdscr , firstHitValue )
                 stdscr.refresh()
+                if player_choice == ord('1') and firstHitValue < 21:
+                    stdscr.clear()
+                    stdscr.refresh()
+                    string3 = ["you are now entering legendary mode" ,
+                               "taking another hit will boost legendary status if you dont bust" ,
+                               "would you like a hit?" ,
+                               "you always run the risk of losing" ,
+                               "if you only think about winning there is no risk - me" , 
+                               "1 .Yes" ,
+                               "2 .No"
+                               ]
+                    centerText(stdscr , string3 , color2)
+                    if player_choice == ord('1'):
+                        stdscr.clear()
+                        stdscr.refresh()
+                        
+                elif firstHitValue > 21:  
+                    string5 = ["busted dawg" ,
+                               "try not to be a loser" ,
+                               "play again and not suck? #skill issue"
+                               "1 .Yes , ill get my ass handed to me again like a good boi" ,
+                               "2 .No , because i always give up on everything - you probably"]
+                         
 
-            elif player_choice == ord('2'):
+            else:
                 stdscr.clear()
                 stdscr.refresh()
                 string3 = [f"you have The {card1} and The {card2}"]
@@ -321,6 +349,7 @@ def main(stdscr):
         blackJack( stdscr , color1 , color2 , color3 )
     else:
         blackJack( stdscr , 0 , 0 , 0)
+        
 if __name__ == '__main__':
     wrapper(main)
 
